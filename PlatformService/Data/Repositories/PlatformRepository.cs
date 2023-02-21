@@ -5,7 +5,7 @@ namespace PaltformService.Data.Repositories
 {
     public class PlatformRepository : IPlatformRepository
     {
-        private AppDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
 
         public PlatformRepository(AppDbContext dbContext)
         {
