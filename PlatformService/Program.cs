@@ -36,5 +36,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 DataPreparation.Populate(app);
+System.Console.WriteLine($"--> CommandService endpoint: {builder.Configuration["CommandServiceURL"]}");
 
 app.Run();
