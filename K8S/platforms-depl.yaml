@@ -15,3 +15,18 @@ spec:
       containers:
         - name: platformservice
           image: spenyaz/platformservice:1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platforms-clusterip-srvc
+spec:
+  type: ClusterIP
+  selector:
+    app: platformservice
+  ports:
+  - name: platformservice
+    protocol: TCP
+    port: 80
+    targetPort: 80
+
