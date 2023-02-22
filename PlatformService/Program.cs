@@ -3,6 +3,8 @@ using PaltformService.Data;
 using PaltformService.Data.DataPreparation;
 using PaltformService.Data.Interfaces;
 using PaltformService.Data.Repositories;
+using PaltformService.SyncDataServices.Http;
+using PaltformService.SyncDataServices.Http.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 //DI
 builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
+builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
