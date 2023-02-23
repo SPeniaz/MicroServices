@@ -9,8 +9,18 @@ using PaltformService.SyncDataServices.Http.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 //DB connection
-builder.Services.AddDbContext<AppDbContext>(options => 
-    options.UseInMemoryDatabase("PlatformSrvcInMemory"));
+if(builder.Environment.IsDevelopment())
+{
+    System.Console.WriteLine("--> Using InMem DB");
+    builder.Services.AddDbContext<AppDbContext>(options => 
+        options.UseInMemoryDatabase("PlatformSrvcInMemory"));
+}
+else
+{
+    System.Console.WriteLine("--> Using SqlServer DB");
+    builder.Services.AddDbContext<AppDbContext>(options => 
+        options.UseSqlServer(builder.Configuration.GetConnectionString("PlatformConnection")));
+}
 
 //DI
 builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
@@ -35,7 +45,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-DataPreparation.Populate(app);
+DataPreparation.Populate(app, app.Environment.IsProduction());
 System.Console.WriteLine($"--> CommandService endpoint: {builder.Configuration["CommandServiceURL"]}");
 
 app.Run();

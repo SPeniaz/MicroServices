@@ -1,22 +1,36 @@
+using Microsoft.EntityFrameworkCore;
 using PaltformService.Models;
 
 namespace PaltformService.Data.DataPreparation
 {
     public static class DataPreparation
     {
-        public static void Populate(WebApplication application)
+        public static void Populate(WebApplication application, bool isProduction)
         {
             using (var serviceScope = application.Services.CreateScope())
             {
-                SeedData(serviceScope.ServiceProvider.GetService<AppDbContext>());
+                SeedData(serviceScope.ServiceProvider.GetService<AppDbContext>(), isProduction);
             }
         }
 
-        private static void SeedData(AppDbContext? dbContext)
+        private static void SeedData(AppDbContext? dbContext, bool isProduction)
         {
+
             if (dbContext == null)
             {
                 throw new ArgumentNullException(nameof(dbContext));
+            }
+            if (isProduction)
+            {
+                System.Console.WriteLine("--> Attempting to apply migrations...");
+                try
+                {
+                    dbContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"--> Could not run migrations: {ex.Message}");
+                }
             }
 
             if (!dbContext.Platforms.Any())
