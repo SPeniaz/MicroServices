@@ -1,6 +1,8 @@
 using CommandService.Data;
 using CommandService.Data.Interfaces;
 using CommandService.Data.Repositories;
+using CommandService.EventProcessing;
+using CommandService.EventProcessing.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ICommandRepository, CommandRepository>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
