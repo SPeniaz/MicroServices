@@ -1,3 +1,4 @@
+using CommandService.AsyncDataServices;
 using CommandService.Data;
 using CommandService.Data.Interfaces;
 using CommandService.Data.Repositories;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 //DB connection
-builder.Services.AddDbContext<AppDbContext>(options => 
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("CommandSrvcInMemory"));
 
 //DI
@@ -16,6 +17,7 @@ builder.Services.AddScoped<ICommandRepository, CommandRepository>();
 
 builder.Services.AddControllers();
 
+builder.Services.AddHostedService<MessageBusSubscriber>();
 builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
