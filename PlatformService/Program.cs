@@ -5,26 +5,29 @@ using PaltformService.Data.Interfaces;
 using PaltformService.Data.Repositories;
 using PaltformService.SyncDataServices.Http;
 using PaltformService.SyncDataServices.Http.Interfaces;
+using PlatformService.AsyncDataServices;
+using PlatformService.AsyncDataServices.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //DB connection
-if(builder.Environment.IsDevelopment())
+if (builder.Environment.IsDevelopment())
 {
     System.Console.WriteLine("--> Using InMem DB");
-    builder.Services.AddDbContext<AppDbContext>(options => 
+    builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseInMemoryDatabase("PlatformSrvcInMemory"));
 }
 else
 {
     System.Console.WriteLine("--> Using SqlServer DB");
-    builder.Services.AddDbContext<AppDbContext>(options => 
+    builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("PlatformConnection")));
 }
 
 //DI
 builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
+builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
