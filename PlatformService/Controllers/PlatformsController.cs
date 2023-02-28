@@ -4,6 +4,7 @@ using PaltformService.Data.Interfaces;
 using PaltformService.Dtos;
 using PaltformService.Models;
 using PaltformService.SyncDataServices.Http.Interfaces;
+using PlatformService.AsyncDataServices.Interfaces;
 
 namespace PaltformService.Controllers
 {
@@ -14,16 +15,19 @@ namespace PaltformService.Controllers
         private readonly IPlatformRepository _repository;
         private readonly IMapper _mapper;
         private readonly ICommandDataClient _commandDataClient;
+        private readonly IMessageBusClient _messageBusClient;
 
         public PlatformsController(
             IPlatformRepository repository,
             IMapper mapper,
-            ICommandDataClient commandDataClient
+            ICommandDataClient commandDataClient,
+            IMessageBusClient messageBusClient
         )
         {
             _repository = repository;
             _mapper = mapper;
             _commandDataClient = commandDataClient;
+            _messageBusClient = messageBusClient;
         }
 
         [HttpGet]
@@ -54,6 +58,8 @@ namespace PaltformService.Controllers
             _repository.SaveChanges();
 
             var result = _mapper.Map<PlatformReadDto>(mapResult);
+
+            //Send Sync Message
             try
             {
                  await _commandDataClient.SendPlatformToCommand(result);
@@ -61,6 +67,19 @@ namespace PaltformService.Controllers
             catch(Exception ex)
             {
                 System.Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
+            }
+
+            //Send Async Message
+            try
+            {
+                var platformPublishedDto = _mapper.Map<PlatformPublishedDto>(result);
+                platformPublishedDto.Event = "Platform_Published";
+                _messageBusClient.PublishNewPlatform(platformPublishedDto);
+            }
+            catch (Exception ex)
+            {
+                
+                System.Console.WriteLine($"--> Could not send async: {ex.Message}");
             }
 
             return CreatedAtRoute(nameof(GetById), new { Id = result.Id }, result);
