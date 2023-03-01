@@ -22,8 +22,10 @@ namespace CommandService.SyncDataServices.Grpc
 
         public IEnumerable<Platform> ReturnAllPlatforms()
         {
+            var httpHandler = new HttpClientHandler();
+            httpHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
             System.Console.WriteLine($"--> Calling GRPC service {_configuration["GrpcPlatform"]} ..");
-            var channel = GrpcChannel.ForAddress(_configuration["GrpcPlatform"]);
+            var channel = GrpcChannel.ForAddress(_configuration["GrpcPlatform"], new GrpcChannelOptions { HttpHandler = httpHandler });
             var client = new GrpcPlatform.GrpcPlatformClient(channel);
             var request = new GetAllRequest();
 
